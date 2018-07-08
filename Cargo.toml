@@ -1,0 +1,6 @@
+[package]
+name = "kokmath"
+version = "0.1.0"
+authors = ["CreativeGP <malicktafaminecraft@gmail.com>"]
+
+[dependencies]
