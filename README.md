@@ -1,2 +1,2 @@
 # kokmathlib
-Library for algebraic operations
+Library for algebraic operations.
