@@ -62,7 +62,10 @@ mod tests {
 
     #[test]
     fn token_to_string() {
-        let t = Token::Scalar(1);
-        println!("{}", t.to_string());
+        let t1 = Token::Scalar(1);
+        let t2 = Token::Variable("x".to_string());
+
+        assert_eq!(t1.to_string(), "1");
+        assert_eq!(t2.to_string(), "x");
     }
 }
