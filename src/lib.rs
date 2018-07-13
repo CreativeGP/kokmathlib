@@ -42,6 +42,31 @@ pub struct Monominal {
     pub denominator: Option<Box<Expression>>,
 }
 
+impl Monominal {
+    pub fn to_string(&self) -> String {
+        "".to_string()
+    }
+
+    pub fn combine_scalar(&mut self) {
+        let mut pum = 1.;
+
+        {
+            let mut diff = 0;
+            for i in 0..self.numerator.len() {
+                if let Token::Scalar(s) = self.numerator[i-diff] {
+                    pum *= s;
+                    self.numerator.remove(i-diff);
+                    diff += 1;
+                }
+            }
+        }
+
+        self.numerator.push(Token::Scalar(pum));
+
+        // TODO: 分母もやって約分までするべきなのかな？
+    }
+}
+
 #[derive(Debug)]
 pub struct Expression(pub Vec<Monominal>);
 
@@ -67,5 +92,27 @@ mod tests {
 
         assert_eq!(t1.to_string(), "1");
         assert_eq!(t2.to_string(), "x");
+    }
+
+    #[test]
+    fn monominal_combine_scalar() {
+        let mut mono = Monominal {
+            numerator: vec![
+                Token::Scalar(2.),
+                Token::Scalar(-3.),
+                Token::Variable("x".to_string()),
+                Token::Variable("y".to_string()),
+            ],
+            denominator: None
+        };
+
+        assert_eq!(format!("{:?}", mono), "Monominal { numerator: [Scalar(2), Scalar(-3), Variable(\"x\"), Variable(\"y\")], denominator: None }");
+
+        mono.combine_scalar();
+
+        assert_eq!(format!("{:?}", mono), "Monominal { numerator: [Variable(\"x\"), Variable(\"y\"), Scalar(-6)], denominator: None }");
+        
+
+        println!("{:?}", mono);
     }
 }
