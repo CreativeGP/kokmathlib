@@ -23,7 +23,7 @@ Author: CreativeGP(@CreativeGP1)
 
 #[derive(Debug)]
 pub enum Token {
-    Scalar(i64),
+    Scalar(f64),
     Variable(String),
 }
 
@@ -62,7 +62,7 @@ mod tests {
 
     #[test]
     fn token_to_string() {
-        let t1 = Token::Scalar(1);
+        let t1 = Token::Scalar(1.0);
         let t2 = Token::Variable("x".to_string());
 
         assert_eq!(t1.to_string(), "1");
