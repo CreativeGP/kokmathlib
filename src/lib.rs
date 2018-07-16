@@ -48,24 +48,26 @@ impl Monominal {
     pub fn to_string(&self) -> String {
         let mut res = "".to_string();
 
-        let mut chunks = self.numerator.iter().peekable();
-        while let Some(chunk) = chunks.next() {
-            match *chunk {
-                Token::Scalar(ref s) => res.insert_str(0, format!("{}*", s).as_str()),
-                Token::Variable(ref v) => res.push_str(format!("{}*", v).as_str()),
-                Token::Parenthesis(ref p) => res.push_str(format!("({})*", p.to_string()).as_str()),
-            };
+        {
+            let mut chunks = self.numerator.iter().peekable();
+            while let Some(chunk) = chunks.next() {
+                match *chunk {
+                    Token::Scalar(ref s) => res.insert_str(0, format!("{}*", s).as_str()),
+                    Token::Variable(ref v) => res.push_str(format!("{}*", v).as_str()),
+                    Token::Parenthesis(ref p) => res.push_str(format!("({})*", p.to_string()).as_str()),
+                };
 
-            if chunks.peek().is_none() {
-                res.pop();
-                // res.pop();
-                // res.pop();
+                if chunks.peek().is_none() {
+                    res.pop();
+                    // res.pop();
+                    // res.pop();
+                }
             }
         }
 
-        // if let Some(ex) = self.denominator {
-        //     res = format!("{} / ({})", res, ex.to_string());
-        // }
+        if let Some(ref ex) = self.denominator {
+            res = format!("{}/({})", res, ex.to_string());
+        }
 
         res
     }
@@ -105,7 +107,11 @@ impl Expression {
             }
         }
 
-        result
+        if &result[..1] == "+" {
+            (&result[1..]).to_string()
+        } else {
+            result
+        }
     }
 }
 
@@ -201,6 +207,77 @@ mod tests {
             },
         ]);
 
-        println!("{}", exp.to_string());
+        assert_eq!(exp.to_string(), "-3*2*x*y-4*x+2.1*8*x*y");
+    }
+
+    #[test]
+    fn complicated_expression_to_string() {
+        let mut exp = Expression(vec![
+            Monominal {
+                numerator: vec![
+                    Token::Scalar(2.),
+                    Token::Parenthesis(Expression(vec![
+                        Monominal {
+                            numerator: vec![
+                                Token::Scalar(-4.),
+                                Token::Variable("x".to_string()),
+                            ],
+                            denominator: None
+                        },            
+                        Monominal {
+                            numerator: vec![
+                                Token::Scalar(8.),
+                                Token::Scalar(2.1),
+                                Token::Variable("x".to_string()),
+                                Token::Variable("y".to_string()),
+                            ],
+                            denominator: None
+                        }
+                    ])),
+                ],
+                denominator: None
+            },
+            Monominal {
+                numerator: vec![
+                    Token::Variable("x".to_string()),
+                    Token::Variable("y".to_string()),
+                ],
+                denominator: Some(Box::new(
+                    Expression(vec![
+                        Monominal {
+                            numerator: vec![
+                                Token::Scalar(2.),
+                                Token::Parenthesis(Expression(vec![
+                                    Monominal {
+                                        numerator: vec![
+                                            Token::Scalar(-4.),
+                                            Token::Variable("x".to_string()),
+                                        ],
+                                        denominator: None
+                                    },            
+                                    Monominal {
+                                        numerator: vec![
+                                            Token::Scalar(8.),
+                                            Token::Variable("x".to_string()),
+                                            Token::Variable("y".to_string()),
+                                        ],
+                                        denominator: None
+                                    }
+                                ])),
+                            ],
+                            denominator: None
+                        },
+                        Monominal {
+                            numerator: vec![Token::Variable("a".to_string())], denominator: None
+                        },
+                    ]))),
+            },
+        ]);
+
+        assert_eq!(exp.to_string(), "2*(-4*x+2.1*8*x*y)+x*y/(2*(-4*x+8*x*y)+a)");
+    }
+
+    #[test]
+    fn test() {
     }
 }
