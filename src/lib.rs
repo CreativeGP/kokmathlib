@@ -25,6 +25,7 @@ Author: CreativeGP(@CreativeGP1)
 pub enum Token {
     Scalar(f64),
     Variable(String),
+    Parenthesis(Expression),
 }
 
 impl Token {
@@ -32,6 +33,7 @@ impl Token {
         match self {
             Token::Scalar(s) => format!("{}", s),
             Token::Variable(v) => v,
+            Token::Parenthesis(p) => format!("({})", p.to_string()),
         }
     }
 }
@@ -44,7 +46,28 @@ pub struct Monominal {
 
 impl Monominal {
     pub fn to_string(&self) -> String {
-        "".to_string()
+        let mut res = "".to_string();
+
+        let mut chunks = self.numerator.iter().peekable();
+        while let Some(chunk) = chunks.next() {
+            match *chunk {
+                Token::Scalar(ref s) => res.insert_str(0, format!("{}*", s).as_str()),
+                Token::Variable(ref v) => res.push_str(format!("{}*", v).as_str()),
+                Token::Parenthesis(ref p) => res.push_str(format!("({})*", p.to_string()).as_str()),
+            };
+
+            if chunks.peek().is_none() {
+                res.pop();
+                // res.pop();
+                // res.pop();
+            }
+        }
+
+        // if let Some(ex) = self.denominator {
+        //     res = format!("{} / ({})", res, ex.to_string());
+        // }
+
+        res
     }
 
     pub fn combine_scalar(&mut self) {
@@ -69,6 +92,24 @@ impl Monominal {
 
 #[derive(Debug)]
 pub struct Expression(pub Vec<Monominal>);
+
+impl Expression {
+    pub fn to_string(&self) -> String {
+        let mut result = "".to_string();
+        
+        for m in self.0.iter() {
+            if &m.to_string()[0..1] == "-" {
+                result.push_str(format!("-{}", &m.to_string()[1..]).as_str());
+            } else {
+                result.push_str(format!("+{}", m.to_string()).as_str());
+            }
+        }
+
+        result
+    }
+}
+
+
 
 #[derive(Debug)]
 pub struct Equation {
@@ -111,8 +152,55 @@ mod tests {
         mono.combine_scalar();
 
         assert_eq!(format!("{:?}", mono), "Monominal { numerator: [Variable(\"x\"), Variable(\"y\"), Scalar(-6)], denominator: None }");
-        
+    }
 
-        println!("{:?}", mono);
+    #[test]
+    fn monominal_to_string() {
+        let mut mono = Monominal {
+            numerator: vec![
+                Token::Scalar(2.),
+                Token::Scalar(-3.),
+                Token::Variable("x".to_string()),
+                Token::Variable("y".to_string()),
+            ],
+            denominator: None
+        };
+
+        assert_eq!(mono.to_string(), "-3*2*x*y");
+        mono.combine_scalar();
+        assert_eq!(mono.to_string(), "-6*x*y");
+    }
+
+    #[test]
+    fn expression_to_string() {
+        let mut exp = Expression(vec![
+            Monominal {
+                numerator: vec![
+                    Token::Scalar(2.),
+                    Token::Scalar(-3.),
+                    Token::Variable("x".to_string()),
+                    Token::Variable("y".to_string()),
+                ],
+                denominator: None
+            },            
+            Monominal {
+                numerator: vec![
+                    Token::Scalar(-4.),
+                    Token::Variable("x".to_string()),
+                ],
+                denominator: None
+            },            
+            Monominal {
+                numerator: vec![
+                    Token::Scalar(8.),
+                    Token::Scalar(2.1),
+                    Token::Variable("x".to_string()),
+                    Token::Variable("y".to_string()),
+                ],
+                denominator: None
+            },
+        ]);
+
+        println!("{}", exp.to_string());
     }
 }
