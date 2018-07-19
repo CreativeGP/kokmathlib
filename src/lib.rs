@@ -12,6 +12,8 @@ pub mod token;
 pub mod monominal;
 pub mod expression;
 
+pub use structs::*;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -21,4 +23,3 @@ mod tests {
         assert_eq!(2 + 2, 4);
     }
 }
- 
