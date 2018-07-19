@@ -72,6 +72,27 @@ impl Monominal {
         res
     }
 
+    pub fn to_latex(&self) -> String {
+        let mut res = "".to_string();
+
+        {
+            let mut chunks = self.numerator.iter().peekable();
+            while let Some(chunk) = chunks.next() {
+                match *chunk {
+                    Token::Scalar(ref s) => res.insert_str(0, format!("{}", s).as_str()),
+                    Token::Variable(ref v) => res.push_str(&v[..1]),
+                    Token::Parenthesis(ref p) => res.push_str(format!("({})", p.to_latex()).as_str()),
+                };
+            }
+        }
+
+        if let Some(ref ex) = self.denominator {
+            res = format!("\\frac{{{}}}{{{}}}", res, ex.to_latex());
+        }
+
+        res
+    }
+
     pub fn combine_scalar(&mut self) {
         let mut pum = 1.;
 
@@ -104,6 +125,24 @@ impl Expression {
                 result.push_str(format!("-{}", &m.to_string()[1..]).as_str());
             } else {
                 result.push_str(format!("+{}", m.to_string()).as_str());
+            }
+        }
+
+        if &result[..1] == "+" {
+            (&result[1..]).to_string()
+        } else {
+            result
+        }
+    }
+
+    pub fn to_latex(&self) -> String {
+        let mut result = "".to_string();
+        
+        for m in self.0.iter() {
+            if &m.to_latex()[0..1] == "-" {
+                result.push_str(format!("-{}", &m.to_latex()[1..]).as_str());
+            } else {
+                result.push_str(format!("+{}", m.to_latex()).as_str());
             }
         }
 
@@ -274,6 +313,8 @@ mod tests {
             },
         ]);
 
+        println!("{}", exp.to_string());
+
         assert_eq!(exp.to_string(), "2*(-4*x+2.1*8*x*y)+x*y/(2*(-4*x+8*x*y)+a)");
     }
 
@@ -281,3 +322,4 @@ mod tests {
     fn test() {
     }
 }
+ 
