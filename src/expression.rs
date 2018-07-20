@@ -10,6 +10,10 @@ Author: CreativeGP(@CreativeGP1)
 use structs::*;
 
 impl Expression {
+    pub fn from_str(str: &str) -> Result<Expression, String> {
+        Err("coming soon...".to_string())
+    }
+
     pub fn to_string(&self) -> String {
         let mut result = "".to_string();
         

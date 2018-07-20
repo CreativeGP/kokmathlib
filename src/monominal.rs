@@ -10,6 +10,10 @@ Author: CreativeGP(@CreativeGP1)
 use structs::*;
 
 impl Monominal {
+    // pub fn from_string(str: String) -> Monominal {
+        
+    // }
+    
     pub fn to_string(&self) -> String {
         let mut res = "".to_string();
 

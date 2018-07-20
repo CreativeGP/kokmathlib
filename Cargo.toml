@@ -5,3 +5,4 @@ authors = ["CreativeGP <malicktafaminecraft@gmail.com>"]
 
 [dependencies]
 clap = "2.32.0"
+regex = "1.0.2"
