@@ -160,3 +160,43 @@ fn combine_scalar() {
 
     assert_eq!(format!("{:?}", mono), "Monominal { numerator: [Variable(\"x\"), Variable(\"y\"), Scalar(-6)], denominator: None }");
 }
+
+#[test]
+fn zero_invert() {
+    let mut m1 = Monominal {
+        numerator: vec![
+            Token::Scalar(2.),
+            Token::Variable("x".to_string()),
+            Token::Variable("y".to_string()),
+        ],
+        denominator: None
+    };
+    let mut m2 = Monominal {
+        numerator: vec![
+            Token::Variable("x".to_string()),
+            Token::Variable("y".to_string()),
+        ],
+        denominator: None
+    };
+
+    m1.zero_invert();
+    m2.zero_invert();
+    
+    assert_eq!(format!("{}", m1.to_string()), "-2*x*y");
+    assert_eq!(format!("{}", m2.to_string()), "-1*x*y");
+}
+
+#[test]
+fn from_string() {
+    let m1 = "x*y".parse::<Monominal>().unwrap();
+    let m2 = "3.8*7.2*y".parse::<Monominal>().unwrap();
+    let m3 = "3*(a+b)".parse::<Monominal>().unwrap();
+    let m3 = "a/c/3".parse::<Monominal>().unwrap();
+
+    println!("{:?}", m3);
+
+    assert_eq!(format!("{:?}", m1),
+               "Monominal { numerator: [Variable(\"y\"), Variable(\"x\")], denominator: None }");
+    assert_eq!(format!("{:?}", m2),
+               "Monominal { numerator: [Variable(\"y\"), Scalar(7.2), Scalar(3.8)], denominator: None }");
+}
